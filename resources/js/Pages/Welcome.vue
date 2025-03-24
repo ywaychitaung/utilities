@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import UrlShortener from '@/Components/UrlShortener.vue'
 import QrCodeGenerator from '@/Components/QrCodeGenerator.vue'
+import ImageOptimizer from '@/Components/ImageOptimizer.vue'
 import Navigation from '@/Components/Navigation.vue'
 import FAQs from '@/Components/FAQs.vue'
 import Card from '@/Components/Card.vue'
@@ -20,12 +21,12 @@ function handleTabChange(tab) {
 </script>
 
 <template>
-    <!-- Navigation component with tabs -->
     <Navigation @tab-change="handleTabChange" />
 
-    <!-- Conditional rendering based on active tab -->
+    <!-- Update conditional rendering -->
     <UrlShortener v-if="activeTab === 'URL Shortener'" />
-    <QrCodeGenerator v-else />
+    <QrCodeGenerator v-else-if="activeTab === 'QR Code Generator'" />
+    <ImageOptimizer v-else-if="activeTab === 'Image Optimizer'" />
 
     <h1 class="text-white text-center text-2xl font-bold py-24">
         The Services You Can Trust

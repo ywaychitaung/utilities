@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 
 const activeTab = ref('URL Shortener')
-const tabs = ['URL Shortener', 'QR Code Generator']
+const tabs = ['URL Shortener', 'QR Code Generator', 'Image Optimizer']
 
 const emit = defineEmits(['tabChange'])
 
@@ -14,7 +14,7 @@ function setActive(tab) {
 
 <template>
     <div class="flex justify-center mb-8 pt-16">
-        <div class="relative mx-auto rounded-2xl bg-white/5 p-2 w-[400px]">
+        <div class="relative mx-auto rounded-2xl bg-white/5 p-2 w-[600px]">
             <div class="relative">
                 <!-- Animated background for active tab -->
                 <div
