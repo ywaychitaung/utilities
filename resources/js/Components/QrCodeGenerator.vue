@@ -103,6 +103,7 @@ import {
     QrCodeIcon,
     ArrowDownTrayIcon
 } from '@heroicons/vue/24/solid'
+import QRCode from 'qrcode'
 
 const content = ref('') // Stores the text/URL input
 const qrCodeGenerated = ref(false) // Tracks if QR code has been generated
@@ -120,49 +121,20 @@ const generateQrCode = async () => {
 
         isLoading.value = true
 
-        try {
-            // Try server-side generation first
-            const response = await fetch('/generate-qrcode', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // Use optional chaining to prevent errors
-                    'X-CSRF-TOKEN':
-                        document.head
-                            .querySelector('meta[name="csrf-token"]')
-                            ?.getAttribute('content') || ''
-                },
-                body: JSON.stringify({ content: content.value })
-            })
-
-            if (!response.ok) {
-                throw new Error('Server-side generation failed')
+        // Generate QR code using client-side library
+        qrCodeDataUrl.value = await QRCode.toDataURL(content.value, {
+            width: 240,
+            margin: 1,
+            color: {
+                dark: '#000000',
+                light: '#ffffff'
             }
-
-            // Get the image data from the response
-            const blob = await response.blob()
-            qrCodeDataUrl.value = URL.createObjectURL(blob)
-        } catch (serverError) {
-            console.warn(
-                'Server-side QR generation failed, falling back to client-side:',
-                serverError
-            )
-
-            // Fall back to client-side generation
-            qrCodeDataUrl.value = await QRCode.toDataURL(content.value, {
-                width: 240,
-                margin: 1,
-                color: {
-                    dark: '#000000',
-                    light: '#ffffff'
-                }
-            })
-        }
+        })
 
         qrCodeGenerated.value = true
         isCopied.value = false
     } catch (error) {
-        console.error('An error occurred:', error)
+        console.error('Failed to generate QR code:', error)
     } finally {
         isLoading.value = false
     }
