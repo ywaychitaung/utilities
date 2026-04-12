@@ -18,5 +18,18 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $onVercel = (string) ($_SERVER['VERCEL'] ?? $_ENV['VERCEL'] ?? getenv('VERCEL') ?: '') === '1'
+            || (string) ($_SERVER['VERCEL_ENV'] ?? $_ENV['VERCEL_ENV'] ?? getenv('VERCEL_ENV') ?: '') !== '';
+
+        if ($onVercel) {
+            $exceptions->report(function (\Throwable $e) {
+                error_log(sprintf(
+                    'VERCEL_EXCEPTION_SUMMARY %s: %s @ %s:%d',
+                    $e::class,
+                    str_replace(["\r", "\n"], ' ', $e->getMessage()),
+                    $e->getFile(),
+                    $e->getLine()
+                ));
+            });
+        }
     })->create();

@@ -26,6 +26,7 @@ $urlKeys = [
 ];
 
 $newlineStripKeys = array_merge($urlKeys, [
+    'APP_KEY',
     'DB_HOST',
     'POSTGRES_USER',
     'POSTGRES_HOST',
