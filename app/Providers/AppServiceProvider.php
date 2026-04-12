@@ -2,8 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (getenv('VERCEL') === '1') {
+            TrustProxies::at('*');
+        }
+
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
