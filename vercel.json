@@ -24,6 +24,7 @@
         "VIEW_COMPILED_PATH": "/tmp",
         "LOG_CHANNEL": "stderr",
         "DB_CONNECTION": "pgsql",
+        "DB_PGSQL_EMULATE_PREPARES": "true",
         "QUEUE_CONNECTION": "sync"
     }
 }
