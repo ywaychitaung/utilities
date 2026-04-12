@@ -6,7 +6,11 @@
  * - Strips accidental newlines (common when pasting secrets in the Vercel UI).
  * - Removes channel_binding from Postgres URIs (often breaks pdo_pgsql on Vercel’s runtime).
  */
-if ((getenv('VERCEL') ?: ($_SERVER['VERCEL'] ?? $_ENV['VERCEL'] ?? '')) !== '1') {
+$vercel = $_SERVER['VERCEL'] ?? $_ENV['VERCEL'] ?? getenv('VERCEL');
+$vercelEnv = $_SERVER['VERCEL_ENV'] ?? $_ENV['VERCEL_ENV'] ?? getenv('VERCEL_ENV');
+$onVercel = (string) $vercel === '1' || (is_string($vercelEnv) && $vercelEnv !== '');
+
+if (! $onVercel) {
     return;
 }
 
