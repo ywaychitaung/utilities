@@ -9,6 +9,14 @@ Route::get('/', function () {
 });
 
 Route::post('/shorten', [UrlController::class, 'store']);
+
+Route::get('/favicon.ico', fn () => response()->file(public_path('favicon.ico'), [
+    'Content-Type' => 'image/x-icon',
+]));
+Route::get('/favicon.png', fn () => response()->file(public_path('favicon.png'), [
+    'Content-Type' => 'image/png',
+]));
+
 Route::get('/{shortUrl}', [UrlController::class, 'redirect']);
 
 Route::post('/generate-qrcode', [App\Http\Controllers\QrCodeController::class, 'generate'])

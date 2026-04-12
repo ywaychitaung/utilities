@@ -12,6 +12,8 @@
     },
     "routes": [
         { "src": "/build/(.*)", "dest": "/build/$1" },
+        { "src": "/favicon.ico", "dest": "/favicon.ico" },
+        { "src": "/favicon.png", "dest": "/favicon.png" },
         { "src": "/robots.txt", "dest": "/robots.txt" },
         { "src": "/(.*)", "dest": "/api/index.php" }
     ],
