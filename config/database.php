@@ -1,11 +1,12 @@
 <?php
 
 use Illuminate\Support\Str;
+use Pdo\Mysql;
 
 $mysqlSslCaAttribute = extension_loaded('pdo_mysql')
-    ? ((PHP_VERSION_ID >= 80500 && class_exists(\Pdo\Mysql::class))
-        ? \Pdo\Mysql::ATTR_SSL_CA
-        : \PDO::MYSQL_ATTR_SSL_CA)
+    ? ((PHP_VERSION_ID >= 80500 && class_exists(Mysql::class))
+        ? Mysql::ATTR_SSL_CA
+        : PDO::MYSQL_ATTR_SSL_CA)
     : null;
 
 return [
@@ -90,7 +91,7 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL', env('DATABASE_URL', env('POSTGRES_URL'))),
+            'url' => env('DB_URL', env('DATABASE_URL', env('POSTGRES_URL', env('SUPABASE_DB_URL')))),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'laravel'),
@@ -101,6 +102,9 @@ return [
             'prefix_indexes' => true,
             'search_path' => env('DB_SCHEMA', 'public'),
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            ...((extension_loaded('pdo_pgsql') && filter_var(env('DB_PGSQL_EMULATE_PREPARES', false), FILTER_VALIDATE_BOOLEAN))
+                ? ['options' => [PDO::ATTR_EMULATE_PREPARES => true]]
+                : []),
         ],
 
         'sqlsrv' => [
