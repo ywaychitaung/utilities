@@ -65,7 +65,9 @@
         ],
         "vercel": [
             "rm -f bootstrap/cache/services.php bootstrap/cache/packages.php 2>/dev/null || true",
-            "@php artisan package:discover --ansi",
+            "@php artisan package:discover --ansi"
+        ],
+        "vercel:migrate": [
             "@php artisan migrate --force --no-interaction"
         ]
     },
