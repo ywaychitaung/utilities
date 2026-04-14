@@ -102,8 +102,23 @@ export default {
                 shortUrl.value = response.data.short_url // Update shortened URL
                 isCopied.value = false // Reset icon to Clipboard when new URL is shortened
             } catch (error) {
-                const serverMessage = error?.response?.data?.message || error?.response?.data?.error
-                errorMessage.value = serverMessage || 'Failed to shorten URL. Please try again.'
+                const status = error?.response?.status
+                const data = error?.response?.data
+
+                let serverMessage = ''
+                if (typeof data === 'string' && data.trim() !== '') {
+                    serverMessage = data.slice(0, 300)
+                } else if (data?.message) {
+                    serverMessage = data.message
+                } else if (data?.error) {
+                    serverMessage = data.error
+                } else if (data && typeof data === 'object') {
+                    serverMessage = JSON.stringify(data)
+                }
+
+                errorMessage.value = serverMessage
+                    ? `${serverMessage}${status ? ` (HTTP ${status})` : ''}`
+                    : `Failed to shorten URL${status ? ` (HTTP ${status})` : ''}. Please try again.`
                 console.error('Shorten URL error:', {
                     status: error?.response?.status,
                     data: error?.response?.data,
