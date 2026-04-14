@@ -35,7 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 );
                 error_log($line);
 
-                if ($request->is('api/*')) {
+                if ($request->is('api/*') || $request->expectsJson()) {
                     return response()->json([
                         'error' => 'Server error',
                         'message' => $e->getMessage(),
