@@ -8,6 +8,9 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 });
 
+// Compatibility endpoint for older deployed frontend bundles that still call /shorten.
+Route::post('/shorten', [UrlController::class, 'store']);
+
 Route::get('/favicon.ico', fn () => response()->file(public_path('favicon.ico'), [
     'Content-Type' => 'image/x-icon',
 ]));
