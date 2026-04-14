@@ -35,6 +35,14 @@ return Application::configure(basePath: dirname(__DIR__))
                 );
                 fwrite(STDERR, $line.PHP_EOL);
 
+                if ($request->is('api/*')) {
+                    return response()->json([
+                        'error' => 'Server error',
+                        'message' => $e->getMessage(),
+                        'exception' => $e::class,
+                    ], 500);
+                }
+
                 return null;
             });
         }
