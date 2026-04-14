@@ -118,6 +118,45 @@ $forceEnv = static function (string $key, string $value): void {
     putenv($key.'='.$value);
 };
 
+$readEnv = static function (string $key): string {
+    $value = $_SERVER[$key] ?? $_ENV[$key] ?? getenv($key);
+
+    return is_string($value) ? $value : '';
+};
+
+// Ensure Laravel's pgsql "url" key is populated when Vercel only provides DATABASE_URL/POSTGRES_URL.
+if ($readEnv('DB_URL') === '') {
+    $fallbackUrl = $readEnv('DATABASE_URL');
+    if ($fallbackUrl === '') {
+        $fallbackUrl = $readEnv('POSTGRES_URL');
+    }
+    if ($fallbackUrl !== '') {
+        $forceEnv('DB_URL', $ensureNeonEndpointOption($stripChannelBinding($fallbackUrl)));
+    }
+}
+
+// If the connection is assembled from host/port vars (not URL), pass Neon endpoint through libpq options.
+$hostForEndpoint = $readEnv('DB_HOST');
+if ($hostForEndpoint === '') {
+    $hostForEndpoint = $readEnv('POSTGRES_HOST');
+}
+
+if ($hostForEndpoint === '') {
+    $urlForHost = $readEnv('DB_URL') ?: $readEnv('DATABASE_URL') ?: $readEnv('POSTGRES_URL');
+    $parts = $urlForHost !== '' ? parse_url($urlForHost) : false;
+    if (is_array($parts) && ! empty($parts['host']) && is_string($parts['host'])) {
+        $hostForEndpoint = $parts['host'];
+    }
+}
+
+$pgOptions = trim($readEnv('PGOPTIONS'));
+if ($hostForEndpoint !== '' && str_contains($hostForEndpoint, '.neon.tech') && ! str_contains($pgOptions, 'endpoint=')) {
+    $endpointId = explode('.', $hostForEndpoint)[0] ?? '';
+    if ($endpointId !== '') {
+        $forceEnv('PGOPTIONS', trim($pgOptions === '' ? "endpoint={$endpointId}" : "{$pgOptions} endpoint={$endpointId}"));
+    }
+}
+
 $sessionDriver = strtolower((string) ($_SERVER['SESSION_DRIVER'] ?? $_ENV['SESSION_DRIVER'] ?? getenv('SESSION_DRIVER') ?: ''));
 if ($sessionDriver === '' || $sessionDriver === 'database') {
     $forceEnv('SESSION_DRIVER', 'cookie');
