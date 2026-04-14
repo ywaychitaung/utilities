@@ -33,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     $e->getFile(),
                     $e->getLine()
                 );
-                fwrite(STDERR, $line.PHP_EOL);
+                error_log($line);
 
                 if ($request->is('api/*')) {
                     return response()->json([
