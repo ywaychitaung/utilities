@@ -7,7 +7,9 @@
         <title>Utilities</title>
         
         <!-- Favicon -->
-        <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+        <link rel="icon" href="/favicon.ico" sizes="any">
+        <link rel="icon" href="/favicon.png" type="image/png">
+        <link rel="shortcut icon" href="/favicon.ico">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
