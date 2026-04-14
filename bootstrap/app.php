@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,14 +23,19 @@ return Application::configure(basePath: dirname(__DIR__))
             || (string) ($_SERVER['VERCEL_ENV'] ?? $_ENV['VERCEL_ENV'] ?? getenv('VERCEL_ENV') ?: '') !== '';
 
         if ($onVercel) {
-            $exceptions->report(function (\Throwable $e) {
-                error_log(sprintf(
+            // Log when Laravel turns the exception into an HTTP response (runs for web 500s).
+            // Use STDERR + newline so Vercel often shows this as its own line (search: VERCEL_EXCEPTION_SUMMARY).
+            $exceptions->render(function (\Throwable $e, Request $request) {
+                $line = sprintf(
                     'VERCEL_EXCEPTION_SUMMARY %s: %s @ %s:%d',
                     $e::class,
                     str_replace(["\r", "\n"], ' ', $e->getMessage()),
                     $e->getFile(),
                     $e->getLine()
-                ));
+                );
+                fwrite(STDERR, $line.PHP_EOL);
+
+                return null;
             });
         }
     })->create();

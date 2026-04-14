@@ -65,6 +65,13 @@
                 />
             </div>
         </div>
+
+        <div
+            v-if="errorMessage"
+            class="mt-4 w-full max-w-xl mx-auto p-3 rounded-lg bg-red-500/10 border border-red-400/40 text-red-200 text-sm"
+        >
+            {{ errorMessage }}
+        </div>
     </div>
 </template>
 
@@ -83,17 +90,25 @@ export default {
         const originalUrl = ref('') // Stores the original URL input
         const shortUrl = ref('') // Stores the shortened URL
         const isCopied = ref(false) // Tracks whether the URL has been copied
+        const errorMessage = ref('')
 
         // Function to shorten the URL
         const shortenUrl = async () => {
             try {
+                errorMessage.value = ''
                 const response = await axios.post('/shorten', {
                     original_url: originalUrl.value
                 })
                 shortUrl.value = response.data.short_url // Update shortened URL
                 isCopied.value = false // Reset icon to Clipboard when new URL is shortened
             } catch (error) {
-                console.error('An error occurred:', error)
+                const serverMessage = error?.response?.data?.message || error?.response?.data?.error
+                errorMessage.value = serverMessage || 'Failed to shorten URL. Please try again.'
+                console.error('Shorten URL error:', {
+                    status: error?.response?.status,
+                    data: error?.response?.data,
+                    message: error?.message
+                })
             }
         }
 
@@ -117,6 +132,7 @@ export default {
             shortenUrl,
             copyToClipboard,
             isCopied,
+            errorMessage,
             ClipboardDocumentListIcon,
             CheckCircleIcon
         }
