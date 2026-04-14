@@ -53,34 +53,25 @@ $stripChannelBinding = static function (string $url): string {
     return $url;
 };
 
-$ensureNeonEndpointOption = static function (string $url): string {
+$stripUrlOptionsQueryParam = static function (string $url): string {
     $parts = parse_url($url);
     if (! is_array($parts) || empty($parts['host'])) {
         return $url;
     }
 
-    $host = (string) $parts['host'];
-    if (! str_contains($host, '.neon.tech')) {
-        return $url;
-    }
-
-    $endpointId = explode('.', $host)[0] ?? '';
-    if ($endpointId === '') {
-        return $url;
-    }
-
     parse_str($parts['query'] ?? '', $query);
-    $options = isset($query['options']) ? (string) $query['options'] : '';
-
-    if (str_contains($options, 'endpoint=')) {
+    if (! array_key_exists('options', $query)) {
         return $url;
     }
 
-    $query['options'] = trim($options === '' ? "endpoint={$endpointId}" : "{$options} endpoint={$endpointId}");
+    // Laravel's database URL parser expects "options" to be an array config key, so a URL query
+    // like `options=endpoint=...` can cause type errors. Pass endpoint via PGOPTIONS instead.
+    unset($query['options']);
 
     $scheme = isset($parts['scheme']) ? $parts['scheme'].'://' : '';
     $user = $parts['user'] ?? '';
     $pass = isset($parts['pass']) ? ':'.$parts['pass'] : '';
+    $host = $parts['host'] ?? '';
     $auth = $user !== '' ? $user.$pass.'@' : '';
     $port = isset($parts['port']) ? ':'.$parts['port'] : '';
     $path = $parts['path'] ?? '';
@@ -100,7 +91,7 @@ foreach ($newlineStripKeys as $key) {
 
     if (in_array($key, $urlKeys, true)) {
         $clean = $stripChannelBinding($clean);
-        $clean = $ensureNeonEndpointOption($clean);
+        $clean = $stripUrlOptionsQueryParam($clean);
     }
 
     if ($clean === $value) {
@@ -131,7 +122,7 @@ if ($readEnv('DB_URL') === '') {
         $fallbackUrl = $readEnv('POSTGRES_URL');
     }
     if ($fallbackUrl !== '') {
-        $forceEnv('DB_URL', $ensureNeonEndpointOption($stripChannelBinding($fallbackUrl)));
+        $forceEnv('DB_URL', $stripUrlOptionsQueryParam($stripChannelBinding($fallbackUrl)));
     }
 }
 
