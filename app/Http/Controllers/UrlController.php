@@ -25,7 +25,9 @@ class UrlController extends Controller
             // Check if the encrypted URL already exists
             $existingUrl = Url::where('original_url', $encryptedOriginalUrl)->first();
             if ($existingUrl) {
-                return response()->json(['short_url' => url($existingUrl->short_url)], 200);
+                return response()->json([
+                    'short_url' => $request->getSchemeAndHttpHost().'/'.$existingUrl->short_url,
+                ], 200);
             }
 
             // Generate a unique short URL
@@ -38,7 +40,9 @@ class UrlController extends Controller
                 'expires_at' => now()->addHour(), // Set expiration to one hour from now
             ]);
 
-            return response()->json(['short_url' => url($plainShortUrl)], 201);
+            return response()->json([
+                'short_url' => $request->getSchemeAndHttpHost().'/'.$plainShortUrl,
+            ], 201);
         } catch (\Exception $e) {
             Log::error('URL shorten failed', [
                 'message' => $e->getMessage(),
