@@ -8,8 +8,6 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 });
 
-Route::post('/shorten', [UrlController::class, 'store']);
-
 Route::get('/favicon.ico', fn () => response()->file(public_path('favicon.ico'), [
     'Content-Type' => 'image/x-icon',
 ]));

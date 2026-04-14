@@ -96,7 +96,7 @@ export default {
         const shortenUrl = async () => {
             try {
                 errorMessage.value = ''
-                const response = await axios.post('/shorten', {
+                const response = await axios.post('/api/shorten', {
                     original_url: originalUrl.value
                 })
                 shortUrl.value = response.data.short_url // Update shortened URL
